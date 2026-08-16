@@ -1,0 +1,26 @@
+# Python-Cache
+__pycache__/
+*.py[cod]
+
+# Pytest
+.pytest_cache/
+
+# Virtuelle Umgebungen
+.venv/
+venv/
+env/
+
+# IDE / Editor
+.vscode/
+.idea/
+.spyproject/
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Zur Laufzeit gespeicherte Beobachtungen
+data/new_observations.csv
+
+# Lokale Sicherungsdateien
+app_backup.py

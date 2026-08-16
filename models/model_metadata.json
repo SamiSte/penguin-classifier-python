@@ -1,0 +1,59 @@
+{
+  "created_at_utc": "2026-07-27T11:46:55.240903+00:00",
+  "target": "species",
+  "features": [
+    "bill_length_mm",
+    "bill_depth_mm",
+    "flipper_length_mm",
+    "body_mass_g",
+    "sex"
+  ],
+  "numeric_features": [
+    "bill_length_mm",
+    "bill_depth_mm",
+    "flipper_length_mm",
+    "body_mass_g"
+  ],
+  "categorical_features": [
+    "sex"
+  ],
+  "feature_ranges": {
+    "bill_length_mm": {
+      "minimum": 32.1,
+      "maximum": 59.6,
+      "median": 44.45
+    },
+    "bill_depth_mm": {
+      "minimum": 13.1,
+      "maximum": 21.5,
+      "median": 17.3
+    },
+    "flipper_length_mm": {
+      "minimum": 172.0,
+      "maximum": 231.0,
+      "median": 197.0
+    },
+    "body_mass_g": {
+      "minimum": 2700.0,
+      "maximum": 6300.0,
+      "median": 4050.0
+    }
+  },
+  "allowed_values": {
+    "sex": [
+      "female",
+      "male",
+      "unknown"
+    ],
+    "island": [
+      "Biscoe",
+      "Dream",
+      "Torgersen"
+    ]
+  },
+  "classes": [
+    "Adelie",
+    "Chinstrap",
+    "Gentoo"
+  ]
+}

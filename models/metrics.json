@@ -1,0 +1,135 @@
+{
+  "data": {
+    "total_observations": 342,
+    "training_observations": 256,
+    "test_observations": 86,
+    "test_fraction": 0.25,
+    "random_state": 42
+  },
+  "test_metrics": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "cohen_kappa": 1.0
+  },
+  "permutation_importance": {
+    "scoring": "f1_macro",
+    "n_repeats": 30,
+    "results": [
+      {
+        "feature": "bill_length_mm",
+        "mean_decrease_macro_f1": 0.3283254339961632,
+        "standard_deviation": 0.04609435483508843
+      },
+      {
+        "feature": "bill_depth_mm",
+        "mean_decrease_macro_f1": 0.060405731145750416,
+        "standard_deviation": 0.02133846710539281
+      },
+      {
+        "feature": "flipper_length_mm",
+        "mean_decrease_macro_f1": 0.03911964576776197,
+        "standard_deviation": 0.01640679169899039
+      },
+      {
+        "feature": "sex",
+        "mean_decrease_macro_f1": 0.01865476605724288,
+        "standard_deviation": 0.014007287312572616
+      },
+      {
+        "feature": "body_mass_g",
+        "mean_decrease_macro_f1": 0.01699390993570852,
+        "standard_deviation": 0.00986073274860696
+      }
+    ]
+  },
+  "cross_validation": {
+    "accuracy": {
+      "mean": 0.9882352941176471,
+      "standard_deviation": 0.015686274509803914,
+      "individual_scores": [
+        1.0,
+        0.9803921568627451,
+        1.0,
+        0.9607843137254902,
+        1.0
+      ]
+    },
+    "f1_macro": {
+      "mean": 0.9853758186568937,
+      "standard_deviation": 0.01943390078169603,
+      "individual_scores": [
+        1.0,
+        0.9753639417693168,
+        1.0,
+        0.9515151515151515,
+        1.0
+      ]
+    },
+    "kappa": {
+      "mean": 0.9814426273101982,
+      "standard_deviation": 0.024677712605437965,
+      "individual_scores": [
+        1.0,
+        0.9688073394495412,
+        1.0,
+        0.9384057971014492,
+        1.0
+      ]
+    }
+  },
+  "classes": [
+    "Adelie",
+    "Chinstrap",
+    "Gentoo"
+  ],
+  "confusion_matrix": [
+    [
+      38,
+      0,
+      0
+    ],
+    [
+      0,
+      17,
+      0
+    ],
+    [
+      0,
+      0,
+      31
+    ]
+  ],
+  "classification_report": {
+    "Adelie": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 38.0
+    },
+    "Chinstrap": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 17.0
+    },
+    "Gentoo": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 31.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 86.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 86.0
+    }
+  }
+}
