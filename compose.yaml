@@ -1,0 +1,23 @@
+name: penguin-classifier
+
+services:
+  app:
+    image: penguin-classifier:local
+    build:
+      context: .
+    # Startskripte bauen separat; im Feld wird kein Image heruntergeladen.
+    pull_policy: never
+    ports:
+      - "127.0.0.1:${PENGUIN_PORT:-8050}:8050"
+    volumes:
+      - observations:/app/data
+      - models:/app/models
+    # Es gibt genau einen Serverprozess für die lokale CSV-Speicherung.
+    restart: "no"
+    stop_grace_period: 30s
+
+volumes:
+  observations:
+    name: ${PENGUIN_DATA_VOLUME:-penguin-data}
+  models:
+    name: ${PENGUIN_MODELS_VOLUME:-penguin-models}

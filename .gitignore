@@ -4,6 +4,8 @@ __pycache__/
 
 # Pytest
 .pytest_cache/
+tmp/
+work/
 
 # Virtuelle Umgebungen
 .venv/
@@ -21,6 +23,9 @@ Thumbs.db
 
 # Zur Laufzeit gespeicherte Beobachtungen
 data/new_observations.csv
+models/versions/
+models/active_model.json
+models/pending_candidate.json
 
 # Lokale Sicherungsdateien
 app_backup.py

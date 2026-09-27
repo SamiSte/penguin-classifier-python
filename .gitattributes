@@ -1,0 +1,5 @@
+# Shell-Dateien müssen auch nach einem Checkout unter Windows LF behalten.
+*.sh text eol=lf
+*.command text eol=lf
+*.bat text eol=crlf
+*.yaml text eol=lf

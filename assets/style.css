@@ -1,0 +1,147 @@
+:root {
+    color-scheme: light;
+    --ink: #29332f;
+    --muted: #626d67;
+    --line: #d9dfdb;
+    --accent: #355f52;
+    --soft: #f3f5f3;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: var(--ink); font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.app-shell { max-width: 1440px; margin: auto; padding: 22px 32px; }
+.app-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 18px; padding-bottom: 13px; border-bottom: 1px solid #9fa6ab; }
+h1 { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 600; }
+.header-description { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.header-reference { margin: 0; color: var(--muted); font-size: 12px; }
+.workspace { display: grid; grid-template-columns: minmax(420px, .94fr) minmax(0, 1.3fr); align-items: stretch; gap: 26px; }
+.form-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.analysis-column { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding-left: 26px; border-left: 1px solid var(--line); }
+.analysis-column .chart-panel { flex: 1; min-height: 0; }
+.panel { padding: 12px 0; min-width: 0; }
+h2 { display: flex; align-items: baseline; gap: 7px; font-size: 15px; line-height: 1.3; margin: 0 0 12px; }
+.step-number { flex: 0 0 auto; color: var(--muted); font-weight: 400; }
+.section-help { color: var(--muted); font-size: 12px; margin: 0 0 13px; }
+.measurement-grid, .context-grid, .axes-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 14px; }
+.context-grid { margin-top: 11px; }
+.field { min-width: 0; }
+.field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+.number-control { display: flex; width: 100%; height: 36px; border: 1px solid #aeb5bb; border-radius: 2px; background: #fff; }
+.step-button { flex: 0 0 35px; border: 0; background: #f4f5f5; color: #46515a; font-size: 20px; line-height: 1; }
+.step-button:first-child { border-radius: 1px 0 0 1px; border-right: 1px solid var(--line); }
+.step-button:last-child { border-radius: 0 1px 1px 0; border-left: 1px solid var(--line); }
+.step-button:hover { background: #e5e8eb; }
+.numeric-input { appearance: textfield; -moz-appearance: textfield; width: 100%; min-width: 0; border: 0; border-radius: 0; text-align: center; color: var(--ink); font-size: 15px; font-variant-numeric: tabular-nums; padding: 5px; background: transparent; }
+.numeric-input::-webkit-inner-spin-button, .numeric-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+/* Dash 4 wraps number inputs and adds its own steppers. Keep only our controls. */
+.numeric-input.dash-input-container { flex: 1; padding: 0; box-shadow: none; }
+.numeric-input .dash-input-stepper { display: none; }
+.numeric-input .dash-input-element { width: 100%; min-width: 0; height: 100%; border: 0; border-radius: 0; padding: 5px; text-align: center; font: inherit; color: inherit; background: transparent; }
+.numeric-input .dash-input-element::-webkit-inner-spin-button, .numeric-input .dash-input-element::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.numeric-input .dash-input-element { appearance: textfield; -moz-appearance: textfield; }
+.field-help { display: block; margin-top: 4px; font-size: 10px; color: var(--muted); }
+.context-help { display: block; margin: 7px 0 11px; font-size: 10px; color: var(--muted); }
+.primary-button { width: 100%; padding: 10px 16px; border: 1px solid var(--accent); border-radius: 2px; color: white; background: var(--accent); font-weight: 700; font-size: 13px; }
+.primary-button:hover { background: #274a3f; }
+.result-panel { flex: 1; border-top: 1px solid var(--line); }
+.result-panel h2 { margin-bottom: 10px; }
+.prediction-placeholder { padding: 8px 0; color: var(--muted); font-size: 12px; }
+.prediction-placeholder p { margin: 3px 0 0; }
+.prediction-result { padding: 8px 0; }
+.result-summary { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.result-label { color: var(--muted); font-size: 11px; }
+.species-name { font-size: 21px; line-height: 1.2; color: var(--accent); }
+.result-island { margin-left: auto; color: var(--muted); font-size: 10px; }
+.probability-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 9px 0 5px; }
+.probability-cell { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; font-variant-numeric: tabular-nums; border-top: 1px solid var(--line); padding-top: 5px; }
+.model-note { font-size: 10px; color: var(--muted); }
+.confirmation-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 12px; margin-top: 10px; }
+.confirmation-help { font-size: 11px; color: var(--muted); }
+.save-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 11px; }
+.save-button { padding: 8px 12px; border: 1px solid #aeb5bb; border-radius: 2px; color: var(--ink); background: #fafafa; font-weight: 400; font-size: 12px; }
+.save-button:hover:enabled { background: var(--soft); }
+.save-button:disabled { background: #f3f4f4; border-color: #d9dcdf; color: #737b82; }
+.save-help { font-size: 10px; color: var(--muted); }
+.save-status { margin-top: 8px; color: #25653c; font-size: 12px; }
+.message { margin-top: 8px; padding: 8px 10px; border-radius: 2px; font-size: 12px; }
+.message p { margin: 4px 0 0; }
+.message ul { margin: 4px 0 0; padding-left: 17px; }
+.warning-message { background: #fff6df; color: #79530b; border: 1px solid #ead5a1; }
+.error-message { background: #fff0ee; color: #9a3026; border: 1px solid #eccbc5; }
+.chart-panel { display: flex; flex-direction: column; }
+.axes-grid { margin-top: 1px; }
+.comparison-graph { height: 255px !important; min-height: 210px; flex: 1; width: 100%; margin-top: 6px; }
+.training-panel { flex-shrink: 0; border-top: 1px solid var(--line); }
+.training-overview { font-size: 12px; font-weight: 700; margin: 4px 0; }
+.training-message { font-size: 12px; color: var(--muted); margin: 4px 0 7px; overflow-wrap: anywhere; }
+.training-error { color: #9a3026; }
+.is-training::before { content: ''; display: inline-block; width: 10px; height: 10px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; margin-right: 7px; animation: training-spin 1s linear infinite; }
+@keyframes training-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .is-training::before { animation: none; } }
+.training-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.metrics-table { border-collapse: collapse; width: 100%; font-size: 11px; font-variant-numeric: tabular-nums; margin: 5px 0; text-align: right; }
+.metrics-table th, .metrics-table td { padding: 3px 6px; border-bottom: 1px solid var(--line); }
+.metrics-table th:first-child, .metrics-table td:first-child { text-align: left; }
+.metrics-table caption { text-align: left; font-weight: 700; padding-top: 7px; }
+.comparison-note { display: block; font-size: 10px; color: var(--muted); }
+.comparison-warning { color: #79530b; background: #fff6df; font-size: 11px; padding: 4px 7px; margin: 5px 0; }
+.training-details { margin-top: 9px; font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.training-details summary { cursor: pointer; }
+.training-details p { margin: 7px 0; }
+.chart-help { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+.Select-control { border-radius: 2px !important; border-color: #aeb5bb !important; }
+/* Use the same plain controls for Dash 4 dropdowns and the numeric fields. */
+.field .dash-dropdown { border: 1px solid #aeb5bb; border-radius: 2px; min-height: 36px; color: var(--ink); background: #fff; box-shadow: none; font-size: 13px; }
+.field .dash-dropdown:disabled { color: #737b82; background: #f3f4f4; border-color: #d9dcdf; }
+/* Keep the ordinary result, confirmation and save status on a laptop screen.
+   Extra warnings may still extend the page so their content remains readable. */
+@media (min-width: 851px) and (max-height: 800px) {
+    .app-shell { padding: 14px 24px; }
+    .app-header { margin-bottom: 12px; padding-bottom: 10px; }
+    .form-column { gap: 10px; }
+    .panel { padding: 10px 0; }
+    .result-panel h2 { margin-bottom: 6px; }
+    .section-help { margin-bottom: 8px; }
+    .measurement-grid { row-gap: 8px; }
+    .field-help { margin-top: 3px; }
+    .context-grid { margin-top: 8px; }
+    .context-help { margin: 6px 0 8px; }
+    .primary-button { padding-top: 8px; padding-bottom: 8px; }
+    .prediction-result { padding: 6px 0; }
+    .probability-grid { margin: 7px 0 4px; }
+    .confirmation-row { margin-top: 8px; }
+    .save-row { margin-top: 8px; }
+}
+@media (max-width: 1100px) {
+    .app-shell { padding: 18px; }
+    .workspace { grid-template-columns: minmax(390px, 1fr) minmax(0, 1fr); gap: 14px; }
+    .panel { padding: 12px 0; }
+    .analysis-column { padding-left: 14px; }
+    .probability-cell { flex-direction: column; gap: 0; }
+}
+@media (max-width: 850px) {
+    .app-header { display: block; }
+    .header-reference { margin-top: 8px; }
+    .workspace { grid-template-columns: minmax(0, 1fr); }
+    .analysis-column { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+    /* Dash adds an inline height:100%; keep the chart inside its mobile panel. */
+    .comparison-graph { height: 400px !important; flex: none; }
+    .probability-cell { flex-direction: row; }
+}
+@media (max-width: 430px) {
+    .app-shell { padding: 14px 10px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 15px; }
+    .panel { padding: 12px 0; }
+    .measurement-grid, .context-grid, .axes-grid { gap: 10px; }
+    .field label { font-size: 11px; }
+    .step-button { flex-basis: 31px; }
+    .field-help { font-size: 9px; }
+    .result-summary { gap: 5px 8px; }
+    .result-island { margin-left: 0; }
+    .probability-cell { flex-direction: column; }
+    .confirmation-row { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}

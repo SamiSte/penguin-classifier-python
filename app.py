@@ -2,646 +2,221 @@
 
 from uuid import uuid4
 
-from dash import Dash, Input, Output, State, callback, dcc, html
+from dash import Dash, Input, Output, State, ctx, html, no_update
 from dash.exceptions import PreventUpdate
 
 from src.data_processing import load_clean_data
-from src.figures import FEATURE_LABELS, PLOT_FEATURES, create_penguin_scatter
+from src.figures import create_penguin_scatter
 from src.model_service import load_metadata, predict_species
+from src.model_registry import get_registry_state
+from src.retraining import RetrainingService
 from src.storage import save_observation
+from src.ui import (
+    FORM_FIELDS, NUMERIC_LABELS, NUMERIC_STEPS, NUMERIC_UNITS, build_layout,
+    comparison_view, empty_prediction, numeric_default, prediction_view, training_details_view,
+)
 
 
-# Modellinformationen und Referenzdaten beim Start laden.
 METADATA = load_metadata()
 FEATURE_RANGES = METADATA["feature_ranges"]
-ISLANDS = METADATA["allowed_values"]["island"]
 REFERENCE_DATA = load_clean_data()
-
-NUMERIC_LABELS = {
-    "bill_length_mm": "Schnabellänge",
-    "bill_depth_mm": "Schnabeltiefe",
-    "flipper_length_mm": "Flossenlänge",
-    "body_mass_g": "Körpergewicht",
-}
-
-NUMERIC_UNITS = {
-    "bill_length_mm": "mm",
-    "bill_depth_mm": "mm",
-    "flipper_length_mm": "mm",
-    "body_mass_g": "g",
-}
-
-NUMERIC_STEPS = {
-    "bill_length_mm": 0.1,
-    "bill_depth_mm": 0.1,
-    "flipper_length_mm": 1,
-    "body_mass_g": 50,
-}
+RETRAINING = RetrainingService()
 
 
-def create_numeric_input(feature: str) -> html.Div:
-    """Erstelle ein beschriftetes Zahlenfeld für ein Körpermerkmal."""
-
-    feature_range = FEATURE_RANGES[feature]
-    label = NUMERIC_LABELS[feature]
-    unit = NUMERIC_UNITS[feature]
-
-    return html.Div(
-        children=[
-            html.Label(
-                f"{label} ({unit})",
-                htmlFor=feature,
-                style={
-                    "display": "block",
-                    "fontWeight": "600",
-                    "marginBottom": "6px",
-                },
-            ),
-            dcc.Input(
-                id=feature,
-                type="number",
-                value=feature_range["median"],
-                min=0,
-                step=NUMERIC_STEPS[feature],
-                debounce=True,
-                style={
-                    "boxSizing": "border-box",
-                    "fontSize": "16px",
-                    "padding": "10px",
-                    "width": "100%",
-                },
-            ),
-            html.Small(
-                (
-                    "Trainingsbereich: "
-                    f"{feature_range['minimum']:g}–"
-                    f"{feature_range['maximum']:g} {unit}"
-                ),
-                style={
-                    "color": "#666666",
-                    "display": "block",
-                    "marginTop": "5px",
-                },
-            ),
-        ],
-        style={
-            "flex": "1 1 280px",
-            "marginBottom": "18px",
-        },
-    )
-
-
-def determine_assignment_strength(
-    maximum_probability: float,
-) -> tuple[str, str]:
-    """Ordne die höchste Modellwahrscheinlichkeit heuristisch ein."""
-
-    if maximum_probability >= 0.80:
-        return (
-            "hoch",
-            "Die Messwertkombination wird vom Modell eindeutig zugeordnet.",
-        )
-
-    if maximum_probability >= 0.60:
-        return (
-            "mittel",
-            "Die Zuordnung ist plausibel, aber nicht vollständig eindeutig.",
-        )
-
-    return (
-        "niedrig",
-        (
-            "Mehrere Arten weisen ähnliche Wahrscheinlichkeiten auf. "
-            "Bitte Messwerte prüfen und das Ergebnis vorsichtig interpretieren."
-        ),
-    )
-
-
-app = Dash(__name__, title="Pinguin-Klassifikator")
+app = Dash(__name__, title="Pinguin-Klassifikator", update_title=None)
 server = app.server
 
-app.layout = html.Div(
-    children=[
-        dcc.Store(id="prediction-store"),
-        dcc.Store(id="saved-prediction-id"),
-        html.Header(
-            children=[
-                html.H1("Pinguin-Klassifikator", style={"marginBottom": "8px"}),
-                html.P(
-                    (
-                        "Bestimmung der Arten Adelie, Chinstrap und Gentoo "
-                        "anhand individueller Körpermerkmale."
-                    ),
-                    style={"fontSize": "17px", "marginTop": "0"},
-                ),
-            ],
-            style={
-                "borderBottom": "1px solid #dddddd",
-                "marginBottom": "28px",
-                "paddingBottom": "18px",
-            },
-        ),
-        html.Main(
-            children=[
-                html.H2("Neue Beobachtung erfassen"),
-                html.Div(
-                    children=[
-                        create_numeric_input("bill_length_mm"),
-                        create_numeric_input("bill_depth_mm"),
-                        create_numeric_input("flipper_length_mm"),
-                        create_numeric_input("body_mass_g"),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flexWrap": "wrap",
-                        "gap": "20px",
-                    },
-                ),
-                html.Div(
-                    children=[
-                        html.Div(
-                            children=[
-                                html.Label(
-                                    "Geschlecht",
-                                    htmlFor="sex",
-                                    style={
-                                        "display": "block",
-                                        "fontWeight": "600",
-                                        "marginBottom": "6px",
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="sex",
-                                    options=[
-                                        {"label": "Weiblich", "value": "female"},
-                                        {"label": "Männlich", "value": "male"},
-                                        {"label": "Unbekannt", "value": "unknown"},
-                                    ],
-                                    value="unknown",
-                                    clearable=False,
-                                ),
-                            ],
-                            style={
-                                "flex": "1 1 280px",
-                                "marginBottom": "18px",
-                            },
-                        ),
-                        html.Div(
-                            children=[
-                                html.Label(
-                                    "Fundort / Insel",
-                                    htmlFor="island",
-                                    style={
-                                        "display": "block",
-                                        "fontWeight": "600",
-                                        "marginBottom": "6px",
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="island",
-                                    options=[
-                                        {"label": island, "value": island}
-                                        for island in ISLANDS
-                                    ],
-                                    value=ISLANDS[0],
-                                    clearable=False,
-                                ),
-                                html.Small(
-                                    (
-                                        "Der Fundort wird als Kontext erfasst, "
-                                        "aber nicht für die Klassifikation verwendet."
-                                    ),
-                                    style={
-                                        "color": "#666666",
-                                        "display": "block",
-                                        "marginTop": "5px",
-                                    },
-                                ),
-                            ],
-                            style={
-                                "flex": "1 1 280px",
-                                "marginBottom": "18px",
-                            },
-                        ),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flexWrap": "wrap",
-                        "gap": "20px",
-                    },
-                ),
-                html.Button(
-                    "Pinguinart bestimmen",
-                    id="classify-button",
-                    n_clicks=0,
-                    style={
-                        "cursor": "pointer",
-                        "fontSize": "16px",
-                        "fontWeight": "600",
-                        "padding": "12px 20px",
-                    },
-                ),
-                dcc.Loading(
-                    children=html.Div(
-                        id="prediction-output",
-                        style={"marginTop": "28px"},
-                    ),
-                    type="default",
-                ),
-                html.Div(id="warning-output", style={"marginTop": "18px"}),
-                html.Div(
-                    children=[
-                        html.Button(
-                            "Beobachtung speichern",
-                            id="save-button",
-                            n_clicks=0,
-                            disabled=True,
-                            style={
-                                "cursor": "pointer",
-                                "fontSize": "16px",
-                                "fontWeight": "600",
-                                "marginTop": "20px",
-                                "padding": "10px 18px",
-                            },
-                        ),
-                        html.Small(
-                            (
-                                "Gespeichert wird die zuletzt erfolgreich "
-                                "klassifizierte Beobachtung."
-                            ),
-                            style={
-                                "color": "#666666",
-                                "display": "block",
-                                "marginTop": "6px",
-                            },
-                        ),
-                        html.Div(
-                            id="save-output",
-                            style={"marginTop": "12px"},
-                        ),
-                    ]
-                ),
-                html.Hr(
-                    style={
-                        "border": "none",
-                        "borderTop": "1px solid #dddddd",
-                        "margin": "36px 0",
-                    }
-                ),
-                html.H2("Vergleich mit den Trainingsdaten"),
-                html.P(
-                    (
-                        "Die Punkte zeigen die bereinigten Trainingsdaten. "
-                        "Nach einer Klassifikation wird die neue Beobachtung "
-                        "als schwarzer Stern dargestellt."
-                    )
-                ),
-                html.Div(
-                    children=[
-                        html.Div(
-                            children=[
-                                html.Label(
-                                    "X-Achse",
-                                    htmlFor="x-axis-feature",
-                                    style={
-                                        "display": "block",
-                                        "fontWeight": "600",
-                                        "marginBottom": "6px",
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="x-axis-feature",
-                                    options=[
-                                        {
-                                            "label": FEATURE_LABELS[feature],
-                                            "value": feature,
-                                        }
-                                        for feature in PLOT_FEATURES
-                                    ],
-                                    value="bill_length_mm",
-                                    clearable=False,
-                                ),
-                            ],
-                            style={"flex": "1 1 280px"},
-                        ),
-                        html.Div(
-                            children=[
-                                html.Label(
-                                    "Y-Achse",
-                                    htmlFor="y-axis-feature",
-                                    style={
-                                        "display": "block",
-                                        "fontWeight": "600",
-                                        "marginBottom": "6px",
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="y-axis-feature",
-                                    options=[
-                                        {
-                                            "label": FEATURE_LABELS[feature],
-                                            "value": feature,
-                                        }
-                                        for feature in PLOT_FEATURES
-                                    ],
-                                    value="bill_depth_mm",
-                                    clearable=False,
-                                ),
-                            ],
-                            style={"flex": "1 1 280px"},
-                        ),
-                    ],
-                    style={
-                        "display": "flex",
-                        "flexWrap": "wrap",
-                        "gap": "20px",
-                        "marginBottom": "18px",
-                    },
-                ),
-                dcc.Graph(
-                    id="penguin-scatter",
-                    figure=create_penguin_scatter(
-                        reference_data=REFERENCE_DATA,
-                        x_feature="bill_length_mm",
-                        y_feature="bill_depth_mm",
-                    ),
-                    config={
-                        "displaylogo": False,
-                        "responsive": True,
-                    },
-                ),
-            ]
-        ),
-    ],
-    style={
-        "fontFamily": "Arial, sans-serif",
-        "lineHeight": "1.5",
-        "margin": "0 auto",
-        "maxWidth": "900px",
-        "padding": "28px 22px 60px",
-    },
-)
+app.layout = build_layout(METADATA, REFERENCE_DATA, get_registry_state()["active_version"])
 
 
-@callback(
-    Output("prediction-output", "children"),
-    Output("warning-output", "children"),
-    Output("prediction-store", "data"),
+# Im Browser synchron: Auch schnelle Mehrfachklicks verwenden den letzten Wert.
+# step='any' lässt manuelle Messwerte zu, ohne versteckte HTML-Step-Validierung.
+for feature, step in NUMERIC_STEPS.items():
+    app.clientside_callback(
+        f"""function(minus, plus, value) {{
+            const trigger = dash_clientside.callback_context.triggered_id;
+            if (!trigger) return dash_clientside.no_update;
+            return window.penguinUi.adjustValue(value, {step}, {numeric_default(feature, FEATURE_RANGES)},
+                trigger.endsWith('-plus') ? 1 : -1);
+        }}""",
+        Output(feature, "value"), Input(f"{feature}-minus", "n_clicks"),
+        Input(f"{feature}-plus", "n_clicks"), State(feature, "value"),
+        prevent_initial_call=True,
+    )
+
+
+def prediction_matches_form(stored_prediction, values):
+    """Veraltete Vorhersagen auch direkt vor Speichern/Zeichnen abweisen."""
+    return (bool(stored_prediction)
+            and stored_prediction.get("form_values") == list(values[:len(FORM_FIELDS)])
+            and stored_prediction.get("model_version") == get_registry_state()["active_version"])
+
+
+@app.callback(
+    Output("prediction-output", "children"), Output("warning-output", "children"),
+    Output("prediction-store", "data"), Output("validated-species", "value"),
     Input("classify-button", "n_clicks"),
-    State("bill_length_mm", "value"),
-    State("bill_depth_mm", "value"),
-    State("flipper_length_mm", "value"),
-    State("body_mass_g", "value"),
-    State("sex", "value"),
-    State("island", "value"),
-    prevent_initial_call=True,
+    *[Input(field, "value") for field in FORM_FIELDS],
+    Input("active-model-version", "data"), prevent_initial_call=True,
 )
-def classify_penguin(
-    n_clicks,
-    bill_length_mm,
-    bill_depth_mm,
-    flipper_length_mm,
-    body_mass_g,
-    sex,
-    island,
-):
-    """Klassifiziere die über die Oberfläche eingegebene Beobachtung."""
-
+def classify_penguin(n_clicks, *values):
+    """Neue Eingaben/Vorhersagen verwerfen auch die bisherige Artbestätigung."""
+    if ctx.triggered_id == "active-model-version":
+        return html.Div([
+            html.Strong("Modell aktualisiert"), html.P("Bitte erneut die Pinguinart bestimmen."),
+        ], className="prediction-placeholder"), "", None, ""
+    if ctx.triggered_id != "classify-button":
+        return empty_prediction(changed=bool(n_clicks)), "", None, ""
     if not n_clicks:
         raise PreventUpdate
-
-    observation = {
-        "bill_length_mm": bill_length_mm,
-        "bill_depth_mm": bill_depth_mm,
-        "flipper_length_mm": flipper_length_mm,
-        "body_mass_g": body_mass_g,
-        "sex": sex,
-    }
-
+    values = values[:len(FORM_FIELDS)]
+    form = dict(zip(FORM_FIELDS, values))
+    observation = {feature: form[feature] for feature in FORM_FIELDS if feature != "island"}
     try:
         result = predict_species(observation)
-    except ValueError as error:
-        return (
-            html.Div(
-                children=[
-                    html.H3("Eingaben konnten nicht verarbeitet werden"),
-                    html.P(str(error)),
-                ],
-                style={
-                    "border": "1px solid #cc0000",
-                    "padding": "16px",
-                },
-            ),
-            "",
-            None,
-        )
-    except (FileNotFoundError, OSError) as error:
-        return (
-            html.Div(
-                children=[
-                    html.H3("Technischer Fehler"),
-                    html.P(str(error)),
-                ],
-                style={
-                    "border": "1px solid #cc0000",
-                    "padding": "16px",
-                },
-            ),
-            "",
-            None,
-        )
-
-    predicted_species = result["predicted_species"]
-    sorted_probabilities = sorted(
-        result["probabilities"].items(),
-        key=lambda item: item[1],
-        reverse=True,
-    )
-
-    maximum_probability = sorted_probabilities[0][1]
-    assignment_strength, assignment_message = determine_assignment_strength(
-        maximum_probability
-    )
-
-    probability_rows = [
-        html.Li(f"{species}: {probability:.1%}")
-        for species, probability in sorted_probabilities
-    ]
-
-    prediction_content = html.Div(
-        children=[
-            html.H2(
-                f"Vorhergesagte Art: {predicted_species}",
-                style={"marginTop": "0"},
-            ),
-            html.Div(
-                children=[
-                    html.Strong(
-                        "Sicherheit der Modellzuordnung: "
-                        f"{assignment_strength.capitalize()}"
-                    ),
-                    html.P(assignment_message, style={"marginBottom": "0"}),
-                ],
-                style={
-                    "border": "1px solid #bbbbbb",
-                    "marginBottom": "18px",
-                    "padding": "12px",
-                },
-            ),
-            html.H3("Klassenwahrscheinlichkeiten"),
-            html.Ul(probability_rows),
-            html.P(
-                f"Erfasster Fundort: {island}",
-                style={"marginBottom": "0"},
-            ),
-        ],
-        style={
-            "border": "1px solid #888888",
-            "padding": "20px",
-        },
-    )
-
-    if result["warnings"]:
-        warning_content = html.Div(
-            children=[
-                html.H3(
-                    "Hinweise zu den Eingabewerten",
-                    style={"marginTop": "0"},
-                ),
-                html.Ul([html.Li(warning) for warning in result["warnings"]]),
-            ],
-            style={
-                "border": "1px solid #aa7700",
-                "padding": "16px",
-            },
-        )
-    else:
-        warning_content = ""
-
-    stored_prediction = {
+    except (ValueError, FileNotFoundError, OSError) as error:
+        return html.Div([
+            html.Strong("Bitte Eingaben prüfen" if isinstance(error, ValueError) else "Technischer Fehler"),
+            html.P(str(error)),
+        ], className="message error-message"), "", None, ""
+    warning = html.Div([
+        html.Strong("Außerhalb des Trainingsbereichs"),
+        html.Ul([html.Li(text) for text in result["warnings"]]),
+    ], className="message warning-message") if result["warnings"] else ""
+    stored = {
         "prediction_id": uuid4().hex,
         "observation": result["validated_observation"],
-        "predicted_species": predicted_species,
+        "predicted_species": result["predicted_species"],
         "probabilities": result["probabilities"],
-        "island": island,
+        "model_version": result["model_version"],
+        "island": form["island"], "form_values": list(values),
     }
+    return prediction_view(result, form["island"]), warning, stored, ""
 
-    return prediction_content, warning_content, stored_prediction
 
-
-@callback(
-    Output("save-button", "disabled"),
+@app.callback(
+    Output("save-button", "disabled"), Output("validated-species", "disabled"),
     Input("prediction-store", "data"),
+    Input("saved-prediction-id", "data"), Input("save-busy", "data"),
+    *[Input(field, "value") for field in FORM_FIELDS],
+    Input("active-model-version", "data"),
 )
-def toggle_save_button(stored_prediction):
-    """Aktiviere Speichern erst nach erfolgreicher Klassifikation."""
+def toggle_save_button(stored_prediction, saved_prediction_id, save_busy, *values):
+    """Bestätigung und Speichern nur für eine aktuelle, ungespeicherte Vorhersage."""
+    disabled = (bool(save_busy) or not prediction_matches_form(stored_prediction, values)
+                or stored_prediction["prediction_id"] == saved_prediction_id)
+    return disabled, disabled
 
-    return not bool(stored_prediction)
 
-
-@callback(
-    Output("save-output", "children"),
-    Output("saved-prediction-id", "data"),
-    Input("save-button", "n_clicks"),
-    State("prediction-store", "data"),
-    State("saved-prediction-id", "data"),
+@app.callback(
+    Output("save-output", "children"), Output("saved-prediction-id", "data"),
+    Input("save-button", "n_clicks"), Input("prediction-store", "data"),
+    State("saved-prediction-id", "data"), State("validated-species", "value"),
+    *[State(field, "value") for field in FORM_FIELDS],
     prevent_initial_call=True,
+    running=[(Output("save-busy", "data"), True, False)],
 )
 def save_classified_observation(
-    n_clicks,
-    stored_prediction,
-    saved_prediction_id,
+    n_clicks, stored_prediction, saved_prediction_id, validated_species, *values,
 ):
-    """Speichere die zuletzt klassifizierte Beobachtung als CSV-Zeile."""
-
+    """Nur die aktuelle Vorhersage speichern und doppelte Speicherung abweisen."""
+    if ctx.triggered_id != "save-button":
+        return "", no_update
     if not n_clicks:
         raise PreventUpdate
-
-    if not stored_prediction:
-        return (
-            html.Div(
-                "Bitte zuerst eine Beobachtung klassifizieren.",
-                style={"color": "#aa0000"},
-            ),
-            saved_prediction_id,
-        )
-
+    if not prediction_matches_form(stored_prediction, values):
+        return html.Div("Bitte die aktuellen Eingaben zuerst klassifizieren.",
+                        className="message error-message"), saved_prediction_id
     prediction_id = stored_prediction["prediction_id"]
-
     if prediction_id == saved_prediction_id:
-        return (
-            html.Div(
-                "Diese Beobachtung wurde bereits gespeichert.",
-                style={"color": "#666666"},
-            ),
-            saved_prediction_id,
-        )
-
+        return html.Div("Diese Beobachtung wurde bereits gespeichert.",
+                        className="save-status"), saved_prediction_id
     try:
-        saved_path = save_observation(
-            observation=stored_prediction["observation"],
-            island=stored_prediction["island"],
+        save_observation(
+            observation=stored_prediction["observation"], island=stored_prediction["island"],
             predicted_species=stored_prediction["predicted_species"],
             probabilities=stored_prediction["probabilities"],
+            validated_species=validated_species,
         )
     except (KeyError, OSError, ValueError) as error:
-        return (
-            html.Div(
-                children=[
-                    html.Strong("Speichern nicht möglich."),
-                    html.Div(str(error)),
-                ],
-                style={
-                    "border": "1px solid #cc0000",
-                    "padding": "12px",
-                },
-            ),
-            saved_prediction_id,
-        )
-
-    return (
-        html.Div(
-            children=[
-                html.Strong("Beobachtung erfolgreich gespeichert."),
-                html.Div(f"Datei: {saved_path.name}"),
-            ],
-            style={
-                "border": "1px solid #228833",
-                "padding": "12px",
-            },
-        ),
-        prediction_id,
-    )
+        return html.Div([html.Strong("Speichern nicht möglich. "), str(error)],
+                        className="message error-message"), saved_prediction_id
+    confirmation = (f"Fachlich bestätigte Art: {validated_species}."
+                    if validated_species else "Art nicht fachlich bestätigt.")
+    return html.Div(f"Gespeichert. {confirmation}", className="save-status"), prediction_id
 
 
-@callback(
-    Output("penguin-scatter", "figure"),
-    Input("x-axis-feature", "value"),
-    Input("y-axis-feature", "value"),
-    Input("prediction-store", "data"),
+@app.callback(
+    Output("penguin-scatter", "figure"), Input("x-axis-feature", "value"),
+    Input("y-axis-feature", "value"), Input("prediction-store", "data"),
+    *[Input(field, "value") for field in FORM_FIELDS],
+    Input("active-model-version", "data"),
 )
-def update_penguin_scatter(x_feature, y_feature, stored_prediction):
-    """Aktualisiere Achsen und gegebenenfalls den neuen Datenpunkt."""
-
-    new_observation = None
-    predicted_species = None
-
-    if stored_prediction:
-        new_observation = stored_prediction.get("observation")
-        predicted_species = stored_prediction.get("predicted_species")
-
+def update_penguin_scatter(x_feature, y_feature, stored_prediction, *values):
+    current = stored_prediction if prediction_matches_form(stored_prediction, values) else None
     return create_penguin_scatter(
-        reference_data=REFERENCE_DATA,
-        x_feature=x_feature,
-        y_feature=y_feature,
-        new_observation=new_observation,
-        predicted_species=predicted_species,
+        reference_data=REFERENCE_DATA, x_feature=x_feature, y_feature=y_feature,
+        new_observation=current["observation"] if current else None,
+        predicted_species=current["predicted_species"] if current else None,
     )
+
+
+@app.callback(
+    Output("training-overview", "children"), Output("training-status", "children"),
+    Output("training-comparison", "children"), Output("training-details", "children"),
+    Output("train-button", "disabled"), Output("adopt-button", "disabled"),
+    Output("rollback-button", "disabled"), Output("active-model-version", "data"),
+    Input("training-poll", "n_intervals"),
+    Input("training-action", "data"), State("active-model-version", "data"),
+)
+def refresh_training(_poll, _action, known_version):
+    # Neue CSV-Einträge werden per Intervall eingelesen. Ein Speicher-Input hier
+    # würde über die Modellversion und Vorhersage einen Callback-Kreis erzeugen.
+    status = RETRAINING.get_status()
+    count = status["new_confirmed_count"]
+    noun = "Beobachtung" if count == 1 else "Beobachtungen"
+    overview = f"{count} neue bestätigte {noun} seit der letzten Übernahme"
+    message = status.get("data_error") or status["message"]
+    if (not status.get("data_error") and status["phase"] == "idle" and not status["can_train"]):
+        message = "Zum Re-Training zunächst eine neue Beobachtung mit fachlich bestätigter Art speichern."
+    class_name = "training-message"
+    if status["phase"] == "training":
+        class_name += " is-training"
+    if status.get("data_error") or status["phase"] == "error":
+        class_name += " training-error"
+    version = status.get("active_version", known_version)
+    return (overview, html.Div(message, className=class_name), comparison_view(status.get("comparison")),
+            training_details_view(status), not status["can_train"], not status["can_adopt"],
+            not status["can_rollback"], version if version != known_version else no_update)
+
+
+@app.callback(
+    Output("training-action", "data"), Output("training-action-error", "children"),
+    Input("train-button", "n_clicks"), Input("adopt-button", "n_clicks"),
+    Input("rollback-button", "n_clicks"), prevent_initial_call=True,
+)
+def handle_training_action(_train, _adopt, _rollback):
+    actions = {"train-button": RETRAINING.start_training,
+               "adopt-button": RETRAINING.adopt_candidate,
+               "rollback-button": RETRAINING.restore_previous}
+    if ctx.triggered_id not in actions:
+        raise PreventUpdate
+    try:
+        actions[ctx.triggered_id]()
+        return uuid4().hex, ""
+    except (ValueError, OSError, KeyError) as error:
+        return uuid4().hex, html.Div(str(error), className="message error-message")
+
+
+@app.callback(
+    [Output(f"{feature}-range", "children") for feature in NUMERIC_LABELS],
+    Input("active-model-version", "data"),
+)
+def refresh_training_ranges(_version):
+    ranges = load_metadata()["feature_ranges"]
+    return [f"Trainingsbereich: {ranges[feature]['minimum']:g}–{ranges[feature]['maximum']:g} "
+            f"{NUMERIC_UNITS[feature]}" for feature in NUMERIC_LABELS]
 
 
 if __name__ == "__main__":
-    app.run(
-        debug=True,
-        jupyter_mode="external",
-        use_reloader=False,
-    )
+    app.run(debug=True, jupyter_mode="external", use_reloader=False)

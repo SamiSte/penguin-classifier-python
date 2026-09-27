@@ -9,11 +9,18 @@ from typing import Any
 import joblib
 import pandas as pd
 
+from src.model_registry import (
+    MODELS_DIR,
+    REGISTRY_LOCK,
+    get_registry_state,
+    version_paths,
+)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-MODEL_PATH = PROJECT_ROOT / "models" / "penguin_pipeline.joblib"
-METADATA_PATH = PROJECT_ROOT / "models" / "model_metadata.json"
+MODEL_PATH = MODELS_DIR / "penguin_pipeline.joblib"
+METADATA_PATH = MODELS_DIR / "model_metadata.json"
 
 NUMERIC_LABELS = {
     "bill_length_mm": "Schnabellänge",
@@ -23,36 +30,54 @@ NUMERIC_LABELS = {
 }
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)
+def _read_bundle(model_path: str, metadata_path: str, model_signature: tuple, metadata_signature: tuple):
+    """Die Signaturen erneuern auch den Cache eines per CLI ersetzten Altmodells."""
+
+    model = joblib.load(model_path)
+    with Path(metadata_path).open("r", encoding="utf-8") as metadata_file:
+        metadata = json.load(metadata_file)
+    return model, metadata
+
+
+def load_model_bundle() -> tuple[Any, dict, str]:
+    """Lade Modell, Metadaten und Versionskennung aus einem gemeinsamen Zustand.
+
+    Der Registry-Lock verhindert, dass eine gleichzeitige Übernahme zwischen
+    dem Lesen des Zeigers und der Auswahl der beiden Artefakte liegt.
+    """
+
+    with REGISTRY_LOCK:
+        version = get_registry_state(MODELS_DIR)["active_version"]
+        paths = version_paths(version, MODELS_DIR)
+        signatures = []
+        for key in ("model", "metadata"):
+            if not paths[key].is_file():
+                raise FileNotFoundError(
+                    "Das Modell oder seine Metadaten wurden nicht gefunden:\n"
+                    f"{paths[key]}\nFühre zuerst scripts/train_model.py aus."
+                )
+            stat = paths[key].stat()
+            signatures.append((stat.st_mtime_ns, stat.st_size))
+        model, metadata = _read_bundle(
+            str(paths["model"]), str(paths["metadata"]), *signatures
+        )
+        return model, metadata, version
+
+
 def load_model() -> Any:
-    """Lade das trainierte Modell und behalte es im Arbeitsspeicher."""
+    """Lade das aktuell übernommene Modell, ohne einen App-Neustart zu benötigen."""
 
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(
-            "Das trainierte Modell wurde nicht gefunden:\n"
-            f"{MODEL_PATH}\n"
-            "Führe zuerst scripts/train_model.py aus."
-        )
-
-    return joblib.load(MODEL_PATH)
+    return load_model_bundle()[0]
 
 
-@lru_cache(maxsize=1)
 def load_metadata() -> dict:
-    """Lade die zum Modell gehörenden Metadaten."""
+    """Lade die Metadaten der aktuell übernommenen Modellversion."""
 
-    if not METADATA_PATH.exists():
-        raise FileNotFoundError(
-            "Die Modellmetadaten wurden nicht gefunden:\n"
-            f"{METADATA_PATH}\n"
-            "Führe zuerst scripts/train_model.py aus."
-        )
-
-    with METADATA_PATH.open("r", encoding="utf-8") as metadata_file:
-        return json.load(metadata_file)
+    return load_model_bundle()[1]
 
 
-def validate_observation(observation: dict) -> tuple[dict, list[str]]:
+def validate_observation(observation: dict, metadata: dict | None = None) -> tuple[dict, list[str]]:
     """Prüfe eine neue Beobachtung und bereite sie für das Modell auf.
 
     Die vier Körpermesswerte sind verpflichtend. Das Geschlecht darf als
@@ -75,7 +100,8 @@ def validate_observation(observation: dict) -> tuple[dict, list[str]]:
         Bei fehlenden, ungültigen oder nicht endlichen Eingaben.
     """
 
-    metadata = load_metadata()
+    if metadata is None:
+        metadata = load_metadata()
     expected_features = metadata["features"]
     numeric_features = metadata["numeric_features"]
 
@@ -156,13 +182,12 @@ def validate_observation(observation: dict) -> tuple[dict, list[str]]:
 def predict_species(observation: dict) -> dict:
     """Bestimme die Pinguinart und liefere Klassenwahrscheinlichkeiten."""
 
-    cleaned_observation, warnings = validate_observation(observation)
-
-    model = load_model()
+    model, metadata, model_version = load_model_bundle()
+    cleaned_observation, warnings = validate_observation(observation, metadata)
 
     input_data = pd.DataFrame(
         [cleaned_observation],
-        columns=load_metadata()["features"],
+        columns=metadata["features"],
     )
 
     predicted_species = str(model.predict(input_data)[0])
@@ -181,4 +206,5 @@ def predict_species(observation: dict) -> dict:
         "probabilities": probability_by_species,
         "warnings": warnings,
         "validated_observation": cleaned_observation,
+        "model_version": model_version,
     }

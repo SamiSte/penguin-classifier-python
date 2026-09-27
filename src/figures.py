@@ -57,13 +57,18 @@ def create_penguin_scatter(
             "sex": "Geschlecht",
         },
         hover_data=["island", "sex"],
-        title="Neue Beobachtung im Vergleich zu den Trainingsdaten",
+        category_orders={"species": ["Adelie", "Chinstrap", "Gentoo"]},
+        color_discrete_map={
+            "Adelie": "#426c91",
+            "Chinstrap": "#b47540",
+            "Gentoo": "#63806a",
+        },
     )
 
     figure.update_traces(
         marker={
-            "size": 9,
-            "opacity": 0.70,
+            "size": 7,
+            "opacity": 0.75,
         }
     )
 
@@ -110,14 +115,21 @@ def create_penguin_scatter(
 
     figure.update_layout(
         template="plotly_white",
-        height=600,
-        legend_title_text="Pinguinart",
+        autosize=True,
+        font={"family": "Arial, sans-serif", "color": "#30363b", "size": 11},
+        legend={"orientation": "h", "x": 0, "y": 1.1, "title_text": ""},
+        uirevision=f"{x_feature}:{y_feature}",
         margin={
-            "l": 60,
-            "r": 30,
-            "t": 80,
-            "b": 60,
+            "l": 52,
+            "r": 16,
+            "t": 43,
+            "b": 46,
         },
     )
+
+    figure.update_xaxes(automargin=True, gridcolor="#ebedef", zeroline=False,
+                        showline=True, linecolor="#bfc5ca", ticks="outside", tickcolor="#bfc5ca")
+    figure.update_yaxes(automargin=True, gridcolor="#ebedef", zeroline=False,
+                        showline=True, linecolor="#bfc5ca", ticks="outside", tickcolor="#bfc5ca")
 
     return figure

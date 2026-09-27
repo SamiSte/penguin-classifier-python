@@ -1,0 +1,151 @@
+Test-ID: penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847
+Projekt: penguin-classifier-python
+Testport: 8057
+Datenvolume: penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data
+Modellvolume: penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models
+29.8.0
+Docker Compose version v5.5.1
+[
+    {
+        "Id": "sha256:bf685f987e53d7f4328dbcb2c759f13c57a0c9325be28b64404e976c8d5776a8",
+        "RepoTags": [
+            "penguin-classifier:local"
+        ],
+        "RepoDigests": [
+            "penguin-classifier@sha256:bf685f987e53d7f4328dbcb2c759f13c57a0c9325be28b64404e976c8d5776a8"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-09-27T05:36:16.172141473Z",
+        "Config": {
+            "ExposedPorts": {
+                "8050/tcp": {}
+            },
+            "Env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.12.13",
+                "PYTHON_SHA256=c08bc65a81971c1dd5783182826503369466c7e67374d1646519adf05207b684",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": [
+                "python",
+                "-c",
+                "from app import app; app.run(host='0.0.0.0', port=8050, debug=False)"
+            ],
+            "WorkingDir": "/app",
+            "Labels": {
+                "com.docker.compose.project": "penguin-classifier",
+                "com.docker.compose.service": "app",
+                "com.docker.compose.version": "5.5.1"
+            },
+            "ArgsEscaped": true,
+            "Healthcheck": {
+                "Test": [
+                    "CMD-SHELL",
+                    "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8050/_dash-layout', timeout=3).read()\""
+                ],
+                "Interval": 5000000000,
+                "Timeout": 4000000000,
+                "StartPeriod": 20000000000,
+                "Retries": 12
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 821576285,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:66462cc862fe2053b9863fefa3866e07bb5dfb06f6b3ce3177cc096e4021aabe",
+                "sha256:bbbb19fa59e928e9d2412742b476b97f157cd95304b1f9fd3a82d221f661acde",
+                "sha256:0632d0601fca2055c070f7382e63078c292b98d8fa4a5388ee04bd6b1ea0582e",
+                "sha256:da835b7922cb8503b751d1cd1a3ac2309a9608198554e43fdd225591a1ec16f4",
+                "sha256:b35a4b126e7b7478c5c2ced5033a1a86ba6225623f67bd710560e35d6ecc0b1a",
+                "sha256:2050d270f754681ab5a2b5b4d9e8db74d86c6dd722f5d788f527e5d50be44a0b",
+                "sha256:530b8214abe32110153e306b9194380f43740d5eb210686e4c029ed32062ecad",
+                "sha256:bc21e8eee4ace4c15d683ba569247a564951bb28a1caf08f23fb866c54091ff7",
+                "sha256:bc9cd0fd7289aa25b1b41182f60d430901827e13248b0e8e8b8c96829e58d494",
+                "sha256:6553367622c3c78ff00610947ecef4d2584348cba6a74ca706d09de8cb036e03",
+                "sha256:c8f5f965bf803b02202c0f6d5d19da05d217c5b90f60f58da8171f40e0e613e6",
+                "sha256:605e64d3025cf67da28daf9f4d2af5896b891b85b47ee308767482af2a9b31b7"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-09-27T05:36:16.557707592Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:bf685f987e53d7f4328dbcb2c759f13c57a0c9325be28b64404e976c8d5776a8",
+            "size": 856
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "p0a9lgg3sazmdnzeddo9jtbbm",
+                    "CreatedAt": "2026-09-27T05:36:16.681697152Z"
+                }
+            ]
+        }
+    }
+]
+[]
+Error response from daemon: get penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data: no such volume
+[]
+Error response from daemon: get penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models: no such volume
+SCHRITT 1: Isolierten Testcontainer starten.
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data Creating 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models Creating 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Creating 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data Creating 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models Creating 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Creating 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data Created 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-data Created 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models Created 
+ Volume penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-models Created 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Created 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Created 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Creating 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Created 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Starting 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Started 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Waiting 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Healthy 
+SCHRITT 2: Beobachtung speichern, trainieren und Modell uebernehmen.
+OK: Dash-Seite, Layout und Callback-Definitionen erreichbar.
+OK: Basismodell geladen und Vorhersage berechnet.
+OK: Synthetische Beobachtung und separates Testlabel gespeichert.
+Re-Training mit der normalen Modellkonfiguration laeuft ...
+OK: Kandidat bewertet, separat uebernommen und Dateipruefsummen gespeichert.
+SCHRITT 3: Testcontainer entfernen. Die Testvolumes bleiben bestehen.
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Stopping 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Stopped 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Removing 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Removed 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Removing 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Removed 
+SCHRITT 4: Container aus demselben Image und denselben Volumes neu erstellen.
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Creating 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Creating 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Created 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Created 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Creating 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Created 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Starting 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Started 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Waiting 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Healthy 
+SCHRITT 5: Daten, Modellversionen und Rueckkehr zum vorherigen Modell pruefen.
+OK: Dash-Seite, Layout und Callback-Definitionen erreichbar.
+OK: CSV, Referenzdaten und alle Modellartefakte nach Neuerstellung unveraendert.
+OK: Vorherige Version wiederhergestellt und Vorhersage geprueft.
+SCHRITT 6: Ausschliesslich den Testcontainer beenden.
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Stopping 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Stopped 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Removing 
+ Container penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847-app-1 Removed 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Removing 
+ Network penguin-pruefung-2a71f1fa6e594b82b3b1c00e61899847_default Removed 
+BESTANDEN

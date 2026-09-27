@@ -16,12 +16,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Für die Anwendung benötigte Dateien kopieren.
 COPY app.py .
+COPY assets ./assets
 COPY src ./src
 COPY models ./models
 COPY data/penguins.csv ./data/penguins.csv
 
 # Dash-Port dokumentieren.
 EXPOSE 8050
+
+# Der Browser wird erst geöffnet, wenn die Dash-Oberfläche abrufbar ist.
+HEALTHCHECK --interval=5s --timeout=4s --start-period=20s --retries=12 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8050/_dash-layout', timeout=3).read()"
 
 # Anwendung starten.
 # app.py wird importiert, ohne den lokalen Spyder-Startblock auszuführen.

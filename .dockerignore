@@ -6,8 +6,18 @@ __pycache__
 *.pyo
 
 data/new_observations.csv
+models/versions
+models/active_model.json
+models/pending_candidate.json
+
+tmp
+work
+.venv
+venv
+.env
 
 docs
+output
 tests
 scripts
 

@@ -1,0 +1,15 @@
+# Erarbeitung und Reflexion des Pinguinklassifikators
+
+Sami Stephan · IU14112704 · DLMDSPMLSD01_D
+
+Der Pinguinklassifikator wurde mit Python und Dash als lokale Browseranwendung umgesetzt. Vier Körpermesswerte und das Geschlecht dienen zur Klassifikation der Arten Adelie, Chinstrap und Gentoo. Die Insel wird ausschließlich als Kontext gespeichert. Von 344 Palmer-Penguins-Beobachtungen bleiben nach Ausschluss unvollständiger Körpermessungen 342 erhalten. Fehlende Geschlechtsangaben werden als „unbekannt“ verarbeitet. Vorverarbeitung und Klassifikation sind in einer gemeinsamen Pipeline verbunden.
+
+Die Oberfläche führt von der Dateneingabe über die Vorhersage zur Speicherung und zum Vergleich mit den Referenzdaten. Eingabeprüfungen und Hinweise auf Werte außerhalb des Trainingsbereichs unterstützen die Bedienung. Darstellung, Callbacks, Modellservice und Speicherung sind getrennt; die Gestaltung wurde auf wesentliche Bedienelemente reduziert. Ein während der Entwicklung aufgetretener Callback-Zyklus wurde durch die Entkopplung der Statusaktualisierung behoben. Neue Beobachtungen werden in einer CSV-Datei gespeichert. Für das manuelle Re-Training werden nur unabhängig fachlich bestätigte Arten verwendet. Eine neue Modellversion wird getrennt bewertet und erst nach ausdrücklicher Übernahme aktiviert; die vorherige bleibt wiederherstellbar.
+
+Die Modellbewertung nutzt Accuracy, Macro-F1, Cohen’s Kappa und Konfusionsmatrizen. Zur Begrenzung der Komplexität wurden neun Random-Forest-Konfigurationen auf identischen fünf stratifizierten Folds des ursprünglichen Trainingsanteils verglichen. Bei maximaler Baumtiefe 5 sinkt die mittlere Blattzahl von 14,75 auf 11,19, also um rund 24 %. Der mittlere Macro-F1 beträgt 98,07 % gegenüber 98,54 % ohne Tiefenbegrenzung. Diese kompaktere Einstellung wird für neue Trainingsläufe verwendet. Die ursprünglichen 86 Testfälle blieben bei der Auswahl ausgeschlossen; die zur Auswahl genutzte Kreuzvalidierung ist jedoch kein neuer unabhängiger Gütenachweis.
+
+Für die derzeit geringe Datenmenge erscheint ein Random Forest mit 500 Bäumen eher überdimensioniert. Eine zusätzlich geprüfte logistische Regression erreicht auf denselben Folds 98,48 % Macro-F1 und ist damit eine überzeugende, einfachere Alternative. Im Projekt bleibt der begrenzte Random Forest für die geplante Erweiterung durch fachlich bestätigte Erhebungen der Forschenden erhalten. Eine wachsende Datenbasis garantiert keinen Vorteil dieses Modells; spätere Vergleiche mit einfacheren Verfahren bleiben erforderlich.
+
+Docker und Startskripte ermöglichen die vorbereitete lokale Bereitstellung. Ein protokollierter Container-Test bestätigte Speicherung, Re-Training, Modellwechsel und Datenerhalt nach dem Neuerstellen des Containers. Nach den anschließenden Überarbeitungen bestehen 164 automatisierte Tests. Vor der Abgabe sind das aktualisierte Image erneut zu prüfen, der Betrieb ohne Netzwerk zu erproben und der aktuelle Code mit dem Repository zu synchronisieren.
+
+Repository: https://github.com/SamiSte/penguin-classifier-python
