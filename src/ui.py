@@ -19,6 +19,7 @@ NUMERIC_STEPS = {
     "flipper_length_mm": 1, "body_mass_g": 50,
 }
 FORM_FIELDS = [*NUMERIC_LABELS, "sex", "island"]
+DEFAULT_CHART_HELP = "Messwerte anzeigen: mit der Maus über einen Punkt fahren."
 
 
 def numeric_default(feature, feature_ranges):
@@ -257,8 +258,8 @@ def build_layout(metadata, reference_data, active_version):
                     reference_data, "bill_length_mm", "bill_depth_mm",
                 ), config={"displaylogo": False, "responsive": True, "displayModeBar": False},
                     responsive=True, className="comparison-graph"),
-                html.P("Messwerte anzeigen: mit der Maus über einen Punkt fahren.",
-                       className="chart-help"),
+                html.P(DEFAULT_CHART_HELP, id="chart-help", className="chart-help",
+                       **{"aria-live": "polite"}),
             ], className="panel chart-panel"),
             html.Section([
                 step_heading(4, "Modell aktualisieren"),

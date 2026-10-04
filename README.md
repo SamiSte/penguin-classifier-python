@@ -55,6 +55,8 @@ sind in der technischen Dokumentation beschrieben.
 2. **Pinguinart bestimmen** anklicken. Art, Modellwahrscheinlichkeiten und
    Warnungen prüfen. Der schwarze Stern im Diagramm markiert die neue Beobachtung;
    die Achsen können über die Auswahlfelder geändert werden.
+   Bei gleichen Merkmalen auf beiden Achsen erscheint ein Hinweis, zwei
+   unterschiedliche Merkmale zu vergleichen.
 3. Nur wenn die tatsächliche Art unabhängig von der Modellvorhersage fachlich
    bekannt ist, **Fachlich bestätigte Art (optional)** auswählen. Andernfalls
    **Nicht bestätigt** belassen.

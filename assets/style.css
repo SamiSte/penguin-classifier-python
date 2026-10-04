@@ -92,6 +92,7 @@ h2 { display: flex; align-items: baseline; gap: 7px; font-size: 15px; line-heigh
 .training-details summary { cursor: pointer; }
 .training-details p { margin: 7px 0; }
 .chart-help { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+.chart-help.axis-hint { color: #79530b; }
 .Select-control { border-radius: 2px !important; border-color: #aeb5bb !important; }
 /* Use the same plain controls for Dash 4 dropdowns and the numeric fields. */
 .field .dash-dropdown { border: 1px solid #aeb5bb; border-radius: 2px; min-height: 36px; color: var(--ink); background: #fff; box-shadow: none; font-size: 13px; }
