@@ -9,6 +9,7 @@ from typing import Any
 import joblib
 import pandas as pd
 
+from src.formatting import format_number
 from src.model_registry import (
     MODELS_DIR,
     REGISTRY_LOCK,
@@ -156,8 +157,8 @@ def validate_observation(observation: dict, metadata: dict | None = None) -> tup
         if numeric_value < minimum or numeric_value > maximum:
             label = NUMERIC_LABELS.get(feature, feature)
             warnings.append(
-                f"{label}: Der Wert {numeric_value:g} liegt außerhalb "
-                f"des Trainingsbereichs von {minimum:g} bis {maximum:g}."
+                f"{label}: Der Wert {format_number(numeric_value)} liegt außerhalb "
+                f"des Trainingsbereichs von {format_number(minimum)} bis {format_number(maximum)}."
             )
 
         cleaned_observation[feature] = numeric_value

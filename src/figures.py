@@ -115,6 +115,7 @@ def create_penguin_scatter(
 
     figure.update_layout(
         template="plotly_white",
+        separators=",.",
         autosize=True,
         font={"family": "Arial, sans-serif", "color": "#30363b", "size": 11},
         legend={"orientation": "h", "x": 0, "y": 1.1, "title_text": ""},

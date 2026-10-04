@@ -5,6 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from dash import dcc, html
 
 from src.figures import FEATURE_LABELS, PLOT_FEATURES, create_penguin_scatter
+from src.formatting import format_number
 from src.model_service import NUMERIC_LABELS
 from src.storage import ALLOWED_SPECIES
 
@@ -32,7 +33,7 @@ def create_numeric_input(feature, feature_ranges):
     """Explizite, tastaturbedienbare Schrittknöpfe neben freier Zahleneingabe."""
     limits = feature_ranges[feature]
     label, unit = NUMERIC_LABELS[feature], NUMERIC_UNITS[feature]
-    step_label = f"{NUMERIC_STEPS[feature]:g}".replace(".", ",")
+    step_label = format_number(NUMERIC_STEPS[feature])
     return html.Div([
         html.Label(f"{label} ({unit})", htmlFor=feature),
         html.Div([
@@ -54,7 +55,7 @@ def create_numeric_input(feature, feature_ranges):
             ),
         ], className="number-control"),
         html.Small(
-            f"Trainingsbereich: {limits['minimum']:g}–{limits['maximum']:g} {unit}",
+            f"Trainingsbereich: {format_number(limits['minimum'])}–{format_number(limits['maximum'])} {unit}",
             id=f"{feature}-range", className="field-help",
         ),
     ], className="field")
@@ -84,7 +85,7 @@ def prediction_view(result, island):
             html.Span(f"Fundort: {island}", className="result-island"),
         ], className="result-summary"),
         html.Div([
-            html.Div([html.Span(species), html.Strong(f"{probability:.1%}")],
+            html.Div([html.Span(species), html.Strong(f"{format_number(probability * 100, 1)} %")],
                      className="probability-cell") for species, probability in probabilities
         ], className="probability-grid"),
         html.Small("Modellschätzung; die tatsächliche Art muss fachlich geprüft werden.", className="model-note"),
@@ -100,8 +101,8 @@ def comparison_view(metrics):
         html.Table([
             html.Thead(html.Tr([html.Th("Kennzahl"), html.Th("Bisherige Variante"), html.Th("Neue Variante")])),
             html.Tbody([html.Tr([
-                html.Td(label), html.Td(f"{metrics['baseline'][key]:.3f}"),
-                html.Td(f"{metrics['candidate'][key]:.3f}"),
+                html.Td(label), html.Td(format_number(metrics['baseline'][key], 3)),
+                html.Td(format_number(metrics['candidate'][key], 3)),
             ]) for label, key in names]),
         ], className="metrics-table"),
         html.Small(f"Beide Varianten: gleicher Prüfanteil mit {metrics['validation_size']} Beobachtungen",
@@ -140,8 +141,8 @@ def training_details_view(status):
                    "Trainingsläufen ausgeschlossen. Die angezeigten Kennzahlen beziehen sich auf diese "
                    "Vergleichsmodelle; das Auslieferungsmodell nutzt danach alle geprüften Daten."),
             html.P("Fünffache Kreuzvalidierung der neuen Variante (Mittelwert ± Standardabweichung):"),
-            html.Ul([html.Li(f"{label}: {metrics['cross_validation'][key]['mean']:.3f} ± "
-                            f"{metrics['cross_validation'][key]['standard_deviation']:.3f}")
+            html.Ul([html.Li(f"{label}: {format_number(metrics['cross_validation'][key]['mean'], 3)} ± "
+                            f"{format_number(metrics['cross_validation'][key]['standard_deviation'], 3)}")
                      for label, key in [("Accuracy", "accuracy"), ("Macro-F1", "macro_f1"),
                                        ("Cohen’s κ", "cohen_kappa")]]),
             html.P("Konfusionsmatrizen: Zeilen = tatsächliche Art, Spalten = vorhergesagte Art."),

@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 
 from src.data_processing import load_clean_data
 from src.figures import create_penguin_scatter
+from src.formatting import format_number
 from src.model_service import load_metadata, predict_species
 from src.model_registry import get_registry_state
 from src.retraining import RetrainingService
@@ -214,7 +215,7 @@ def handle_training_action(_train, _adopt, _rollback):
 )
 def refresh_training_ranges(_version):
     ranges = load_metadata()["feature_ranges"]
-    return [f"Trainingsbereich: {ranges[feature]['minimum']:g}–{ranges[feature]['maximum']:g} "
+    return [f"Trainingsbereich: {format_number(ranges[feature]['minimum'])}–{format_number(ranges[feature]['maximum'])} "
             f"{NUMERIC_UNITS[feature]}" for feature in NUMERIC_LABELS]
 
 
