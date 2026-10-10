@@ -66,6 +66,14 @@ def step_heading(number, text):
     return html.H2([html.Span(f"{number}.", className="step-number"), text])
 
 
+def axis_options(other_feature):
+    """Das Merkmal der anderen Achse bleibt sichtbar, ist aber nicht auswählbar."""
+    return [
+        {"label": FEATURE_LABELS[feature], "value": feature, "disabled": feature == other_feature}
+        for feature in PLOT_FEATURES
+    ]
+
+
 def empty_prediction(changed=False):
     return html.Div([
         html.Strong("Eingaben geändert" if changed else "Noch keine Vorhersage"),
@@ -244,14 +252,12 @@ def build_layout(metadata, reference_data, active_version):
                 html.Div([
                     html.Div([
                         html.Label(label, htmlFor=axis_id),
-                        dcc.Dropdown(id=axis_id, options=[
-                            {"label": FEATURE_LABELS[feature], "value": feature}
-                            for feature in PLOT_FEATURES
-                        ], value=default, clearable=False, searchable=False),
+                        dcc.Dropdown(id=axis_id, options=axis_options(other_feature),
+                                     value=default, clearable=False, searchable=False),
                     ], className="field")
-                    for label, axis_id, default in [
-                        ("X-Achse", "x-axis-feature", "bill_length_mm"),
-                        ("Y-Achse", "y-axis-feature", "bill_depth_mm"),
+                    for label, axis_id, default, other_feature in [
+                        ("X-Achse", "x-axis-feature", "bill_length_mm", "bill_depth_mm"),
+                        ("Y-Achse", "y-axis-feature", "bill_depth_mm", "bill_length_mm"),
                     ]
                 ], className="axes-grid"),
                 dcc.Graph(id="penguin-scatter", figure=create_penguin_scatter(

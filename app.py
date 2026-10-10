@@ -13,7 +13,8 @@ from src.model_registry import get_registry_state
 from src.retraining import RetrainingService
 from src.storage import save_observation
 from src.ui import (
-    DEFAULT_CHART_HELP, FORM_FIELDS, NUMERIC_LABELS, NUMERIC_STEPS, NUMERIC_UNITS, build_layout,
+    DEFAULT_CHART_HELP, FORM_FIELDS, NUMERIC_LABELS, NUMERIC_STEPS, NUMERIC_UNITS,
+    axis_options, build_layout,
     comparison_view, empty_prediction, numeric_default, prediction_view, training_details_view,
 )
 
@@ -160,6 +161,14 @@ def update_penguin_scatter(x_feature, y_feature, stored_prediction, *values):
         new_observation=current["observation"] if current else None,
         predicted_species=current["predicted_species"] if current else None,
     )
+
+
+@app.callback(
+    Output("x-axis-feature", "options"), Output("y-axis-feature", "options"),
+    Input("x-axis-feature", "value"), Input("y-axis-feature", "value"),
+)
+def update_axis_options(x_feature, y_feature):
+    return axis_options(y_feature), axis_options(x_feature)
 
 
 @app.callback(
