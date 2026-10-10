@@ -239,6 +239,25 @@ Kommandozeileneingaben sind dann für die reguläre Bedienung nicht erforderlich
 öffnet nach erfolgreicher Bereitschaftsprüfung den Browser. Der erste Aufbau
 kann mehrere Minuten dauern. Bei Fehlern bleibt eine erklärende Meldung sichtbar.
 
+### macOS: Sicherheitsmeldung beim ersten Start
+
+Die `.command`-Startdateien sind nicht von Apple signiert oder beglaubigt.
+Meldet macOS, dass Apple die Datei nicht auf Schadsoftware überprüfen kann,
+beschreibt dies eine fehlende Verifikation. Es ist weder ein Malware-Nachweis
+noch ein Sicherheitsnachweis.
+
+Nur für eine vertrauenswürdige, unveränderte Kopie aus diesem Repository:
+
+1. `setup.command` öffnen und die Warnung schließen.
+2. **Systemeinstellungen → Datenschutz & Sicherheit** öffnen. Im Bereich
+   **Sicherheit** bei `setup.command` auf **Dennoch öffnen** klicken.
+3. Die erneute Nachfrage mit **Öffnen** bestätigen; gegebenenfalls authentifizieren.
+
+Die Ausnahme gilt für diese Datei; `start.command` und `stop.command` können
+eine eigene Freigabe benötigen. `chmod +x` setzt lediglich Ausführungsrechte.
+Bei einer ausdrücklichen Meldung über erkannte Schadsoftware diese Anleitung
+nicht verwenden. Grundlage: [Apple: Sicher Apps auf dem Mac öffnen](https://support.apple.com/de-de/102445).
+
 ### Regulärer Betrieb
 
 Docker muss betriebsbereit sein. Danach genügt `start`: Es wird ausschließlich

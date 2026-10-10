@@ -30,6 +30,11 @@ Unter macOS die Dateien vor der ersten Ausführung im Terminal ausführbar mache
 chmod +x setup.command start.command stop.command
 ```
 
+Falls macOS die heruntergeladene Startdatei nicht auf Schadsoftware überprüfen
+kann, ist zusätzlich eine dateibezogene Freigabe nötig; `chmod` behebt diese
+Warnung nicht. Die [Mac-Anleitung](docs/Technische_Dokumentation.md#macos-sicherheitsmeldung-beim-ersten-start)
+beschreibt die Freigabe für eine vertrauenswürdige, unveränderte Projektkopie.
+
 Terminalbefehle werden im Projektordner ausgeführt. Unter Linux kann alternativ
 je eine Desktop-Verknüpfung `sh` mit dem vollständigen Pfad zur Startdatei aufrufen.
 
