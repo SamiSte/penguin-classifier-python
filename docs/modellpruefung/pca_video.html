@@ -1,0 +1,28 @@
+<!doctype html><html lang="de"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>PCA und Dublettenprüfung</title>
+<style>body{margin:0;background:#edf2f5;color:#152d43;font-family:system-ui,sans-serif}
+main{max-width:1250px;margin:28px auto;padding:0 24px}h1{font-size:28px;margin:0 0 12px}
+img{display:block;width:100%;background:white;border-radius:12px}section{background:white;
+padding:22px 28px;border-radius:12px;margin:18px 0}h2{margin:0 0 12px;font-size:23px}
+p{font-size:19px;line-height:1.5;margin:10px 0}.note{color:#435569;font-size:16px}</style>
+<main><h1>PCA und Dublettenprüfung</h1><img src="pca_training.svg"
+alt="Drei Ansichten derselben PCA: PC1/PC2, PC1/PC3 und PC2/PC3 mit allen 256 Trainingsfällen">
+<section><h2>Warum die zusätzliche Ansicht?</h2>
+<p>PC1/PC2 zeigt vor allem die Trennung von Gentoo. Mit PC3 werden zusätzliche Unterschiede
+zwischen Adelie und Chinstrap sichtbar. Auch hier bleiben Überschneidungen.</p>
+<p class="note">PC1: 68,7 % · PC2: 19,6 % · PC3: 8,8 % ·
+PC4: 2,9 % erklärte Merkmalsvarianz. Die ersten drei Komponenten enthalten zusammen
+97,1 %. Das bedeutet weder 97,1 % Accuracy noch vollständige Trennbarkeit.</p>
+<details><summary>Alle sechs Komponentenpaare anzeigen</summary><img src="pca_alle_paare.svg"
+alt="Alle sechs Paarungen der vier Hauptkomponenten"></details></section>
+<section><h2>Ergänzende Prüfung: keine exakten Dubletten</h2>
+<p>344 Rohzeilen · 342 vollständige Messwertzeilen · 256 Training / 86 Test</p>
+<p>0 doppelte Rohzeilen · 0 identische Modellmerkmalskombinationen<br>
+0 gleiche Merkmalskombinationen über die Train/Test-Grenze oder innerhalb der fünf CV-Folds</p>
+<p class="note">Verglichen wurde in jedem CV-Fold dessen Training mit dessen Validierung.
+Geprüft wurden auch die vier Messwerte ohne Geschlecht. Ähnliche Beobachtungen und andere
+Formen von Datenabhängigkeit werden dadurch nicht ausgeschlossen.</p></section>
+<section><h2>Was lässt sich daraus ableiten?</h2>
+<p>Die Klassenstruktur macht hohe Klassifikationswerte plausibel.</p>
+<p class="note">PCA erklärt Merkmalsvarianz, keine Accuracy. Die Darstellung ist kein neuer
+Gütenachweis und kein eigenständiger Test auf Overfitting.</p></section></main></html>

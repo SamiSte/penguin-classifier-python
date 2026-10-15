@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10" fill="none" stroke="#17686b" stroke-width="1.8"/></marker></defs>
+  <rect width="1600" height="900" fill="#f8faf9"/>
+  <g font-family="Arial, sans-serif" fill="#152c3d">
+    <text x="85" y="84" font-size="22" fill="#17686b" letter-spacing="2">PINGUINKLASSIFIKATOR · ENTWICKLUNGSENTSCHEIDUNG</text>
+    <text x="85" y="155" font-size="48" font-weight="700">Was an den Callbacks schwierig war</text>
+    <text x="85" y="202" font-size="25" fill="#526671">Eingaben, Vorhersage, Artbestätigung und Speichern müssen zusammenpassen.</text>
+    <rect x="85" y="250" width="350" height="175" rx="14" fill="#e1efeb"/>
+    <text x="113" y="292" font-size="20" fill="#17686b">01 · AUSLÖSER</text>
+    <text x="113" y="341" font-size="30" font-weight="700">Messwert ändern</text>
+    <text x="113" y="382" font-size="23">z. B. 46,1 auf 46,2 mm</text>
+    <path d="M453 337 H512" fill="none" stroke="#17686b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="535" y="250" width="440" height="175" rx="14" fill="#e1efeb"/>
+    <text x="563" y="292" font-size="20" fill="#17686b">02 · ZUSTAND ZURÜCKSETZEN</text>
+    <text x="563" y="337" font-size="28" font-weight="700">Altes Ergebnis verwerfen</text>
+    <text x="563" y="378" font-size="23">Stern und Artbestätigung löschen</text>
+    <path d="M993 337 H1052" fill="none" stroke="#17686b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="1075" y="250" width="440" height="175" rx="14" fill="#e1efeb"/>
+    <text x="1103" y="292" font-size="20" fill="#17686b">03 · SPEICHERN SPERREN</text>
+    <text x="1103" y="337" font-size="28" font-weight="700">Erneut klassifizieren</text>
+    <text x="1103" y="378" font-size="23">Erst danach wieder speichern</text>
+    <rect x="85" y="469" width="1430" height="112" rx="12" fill="#f6e9dc"/>
+    <text x="113" y="508" font-size="21" font-weight="700" fill="#8c5120">ZU VERMEIDENDE KREISABHÄNGIGKEIT</text>
+    <text x="113" y="551" font-size="28">Speichersignal → Modellstatus / Version → Vorhersage → Speicherablauf</text>
+    <text x="85" y="647" font-size="29" font-weight="700">Lösung: Modellstatus getrennt aktualisieren</text>
+    <text x="85" y="696" font-size="27">Status alle zwei Sekunden abfragen; nur echte Modellwechsel weitergeben.</text>
+    <text x="85" y="741" font-size="27">Vor dem Speichern Eingaben und Modellversion nochmals abgleichen.</text>
+    <path d="M85 791 H1515" stroke="#cbdad9" stroke-width="2"/>
+    <text x="85" y="835" font-size="21" fill="#526671">Umgesetzt in app.py: classify_penguin · prediction_matches_form · refresh_training</text>
+  </g>
+</svg>

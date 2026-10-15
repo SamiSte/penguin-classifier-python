@@ -108,6 +108,12 @@ Details zu Datenprüfung, Bewertung und Versionen stehen im
 
 ## Prüfstand und weitere Dokumentation
 
+Für die Videoaufnahme sind eine [isolierte Demo](docs/video/Demo_Start.md) sowie
+PCA- und Callback-Grafiken vorbereitet. Unter Windows
+startet `video-demo.bat` eine frische Demo auf Port 8058 mit eigenen Daten und
+Modellversionen. Details und die zusätzlich ausgeführten Prüfungen stehen im
+[Prüfstand der Video-Vorbereitung](docs/video/Pruefstand.md).
+
 Der letzte dokumentierte vollständige Lauf umfasst **164 bestandene Tests** unter
 Windows mit Git Bash. Am **03.10.2026** bestanden nach der Anpassung der
 Zahlenformatierung zusätzlich die **52 Tests** für Anwendung, Modellservice und
