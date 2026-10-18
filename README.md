@@ -134,5 +134,3 @@ Vorhersage, Speicherung und Re-Training sind für den lokalen Offlinebetrieb aus
   Prüfungen; getrennter Funktionstest über `docker-pruefen.bat`.
 - [Modellstudie](docs/modellpruefung/bericht.md) und
   [Vergleich mit logistischer Regression](docs/modellpruefung/einfaches_modell.md).
-- [Konzeptionsphase](docs/Konzeptionsphase_Text.md) und
-  [Erarbeitungsphase](docs/Erarbeitungsphase_Text.md).
